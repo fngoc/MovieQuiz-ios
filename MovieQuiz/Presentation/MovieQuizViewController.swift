@@ -28,6 +28,8 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        imageView.layer.masksToBounds = true // Даём разрешение на рисование рамки
+        imageView.layer.cornerRadius = 20.0
         show(quiz: convert(model: questions[currentQuestionIndex]))
     }
     
@@ -60,15 +62,12 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showAnswerResult(isCorrect: Bool) {
-        imageView.layer.masksToBounds = true // Даём разрешение на рисование рамки
-        imageView.layer.borderWidth = 8.0
-        imageView.layer.cornerRadius = 20.0
+        imageView.layer.borderWidth = 8.0 // Добавляю обводку вокруг картинки
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         correctAnswer = isCorrect ? correctAnswer + 1 : correctAnswer
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.imageView.layer.borderWidth = 0 // Убираю обводку вокруг картинки
-            self.imageView.layer.cornerRadius = 0
             self.showNextQuestionOrResults()
             self.setAvailableButtons()
         }
