@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
     
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
@@ -13,21 +13,56 @@ final class MovieQuizViewController: UIViewController {
     private var correctAnswer: Int = 0
     
     private let questionAmount: Int = 10
-    private let questionFactory: QuestionFactoryProtocol = QuestionFactory()
+    private var questionFactory: QuestionFactoryProtocol?
+    private var alertPresenter: AlertPresenterProtocol?
+    
     private var currentQuestion: QuizQuestion?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        questionFactory = QuestionFactory(delegate: self)
+        alertPresenter = AlertPresenter(delegate: self)
+
         imageView.layer.masksToBounds = true // Даём разрешение на рисование рамки
         imageView.layer.cornerRadius = 20.0
-        if let firstQuestion = questionFactory.requestNextQuestion() {
-            currentQuestion = firstQuestion
-            let viewModel = convert(model: firstQuestion)
-            show(quiz: viewModel)
-        }
+        
+        questionFactory?.requestNextQuestion()
     }
     
+    // MARK: - QuestionFactoryDelegate
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        
+        currentQuestion = question;
+        let viewModel = convert(model: question)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
+        }
+        show(quiz: viewModel)
+    }
+    
+    // MARK: - AlertPresenterDelegate
+    func showResult() {
+        let alertModel = AlertModel(
+            text: "Этот раунд окончен",
+            message: "Ваш результат: \(correctAnswer)/\(questionAmount)",
+            buttonText: "Сыграть еще раз",
+            completion: { [weak self] in
+                guard let self = self else { return }
+                
+                self.currentQuestionIndex = 0
+                self.correctAnswer = 0
+                self.questionFactory?.requestNextQuestion()
+            })
+        alertPresenter?.showAlert(model: alertModel)
+    }
+    
+    // MARK: - Private functions
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let viewModel: QuizStepViewModel = QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
@@ -40,26 +75,6 @@ final class MovieQuizViewController: UIViewController {
         counterLabel.text = step.questionNumber
         imageView.image = step.image
         questionLabel.text = step.question
-    }
-    
-    private func show(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(
-            title: result.title,
-            message: result.text,
-            preferredStyle: .alert)
-        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            
-            self.currentQuestionIndex = 0
-            self.correctAnswer = 0
-            if let currentQuestion = questionFactory.requestNextQuestion() {
-                self.currentQuestion = currentQuestion
-                let viewModel = convert(model: currentQuestion)
-                self.show(quiz: viewModel)
-            }
-        }
-        alert.addAction(action)
-        super.present(alert, animated: true, completion: nil)
     }
     
     private func showAnswerResult(isCorrect: Bool) {
@@ -77,17 +92,10 @@ final class MovieQuizViewController: UIViewController {
     
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionAmount - 1 {
-            show(quiz: QuizResultsViewModel(
-                title: "Этот раунд окончен",
-                text: "Ваш результат: \(correctAnswer)/\(questionAmount)",
-                buttonText: "Сыграть еще раз"))
+            showResult()
         } else {
             currentQuestionIndex += 1
-            if let currentQuestion = questionFactory.requestNextQuestion() {
-                self.currentQuestion = currentQuestion
-                let viewModel = convert(model: currentQuestion)
-                show(quiz: viewModel)
-            }
+            questionFactory?.requestNextQuestion()
         }
     }
     
@@ -103,19 +111,14 @@ final class MovieQuizViewController: UIViewController {
         yesButtonView.isUserInteractionEnabled = true
     }
     
+    // MARK: - Actions
     @IBAction private func noButtonAction(_ sender: UIButton) {
         setUnavailableButtons()
-        guard let currentQuestion = questionFactory.requestNextQuestion() else {
-            return
-        }
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer == false)
+        showAnswerResult(isCorrect: self.currentQuestion?.correctAnswer == false)
     }
     
     @IBAction private func yesButtonAction(_ sender: UIButton) {
         setUnavailableButtons()
-        guard let currentQuestion = questionFactory.requestNextQuestion() else {
-            return
-        }
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer == true)
+        showAnswerResult(isCorrect: self.currentQuestion?.correctAnswer == true)
     }
 }
