@@ -24,6 +24,6 @@ class AlertPresenter: AlertPresenterProtocol {
             model.completion()
         }
         alert.addAction(action)
-        (delegate as! UIViewController).present(alert, animated: true, completion: nil)
+        (delegate as? UIViewController)?.present(alert, animated: true, completion: nil)
     }
 }

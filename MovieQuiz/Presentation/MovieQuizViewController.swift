@@ -15,6 +15,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     private let questionAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenterProtocol?
+    private var statisticService: StatisticService?
     
     private var currentQuestion: QuizQuestion?
     
@@ -24,6 +25,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         questionFactory = QuestionFactory(delegate: self)
         alertPresenter = AlertPresenter(delegate: self)
+        statisticService = StatisticServiceImplementation()
 
         imageView.layer.masksToBounds = true // Даём разрешение на рисование рамки
         imageView.layer.cornerRadius = 20.0
@@ -48,9 +50,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     // MARK: - AlertPresenterDelegate
     func showResult() {
+        statisticService?.updateGameStatisticService(correct: correctAnswer, amount: questionAmount)
+        let gameRecord = GameRecord(correct: correctAnswer, total: questionAmount, date: Date())
+        
+        if let bestGame = statisticService?.bestGame,
+            gameRecord > bestGame {
+            statisticService?.store(correct: correctAnswer, total: questionAmount)
+        }
+        
         let alertModel = AlertModel(
             text: "Этот раунд окончен",
-            message: "Ваш результат: \(correctAnswer)/\(questionAmount)",
+            message: makeMessage(),
             buttonText: "Сыграть еще раз",
             completion: { [weak self] in
                 guard let self = self else { return }
@@ -63,6 +73,22 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }
     
     // MARK: - Private functions
+    private func makeMessage() -> String {
+        guard let gamesCount = statisticService?.gamesCount,
+              let recordCount = statisticService?.bestGame.correct,
+              let recordTotal = statisticService?.bestGame.total,
+              let recordTime = statisticService?.bestGame.date.dateTimeString,
+              let average = statisticService?.totalAccuracy else {
+            return "Ошибка при формировании сообщения"
+        }
+        
+        let message = "Ваш результат: \(correctAnswer)/\(questionAmount)\n"
+            .appending("Количество сыгранных квизов: \(gamesCount)\n")
+            .appending("Рекорд: \(recordCount)/\(recordTotal) (\(recordTime))\n")
+            .appending("Средняя точность \(String(format: "%.2f", average))%")
+        return message
+    }
+    
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let viewModel: QuizStepViewModel = QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
@@ -84,7 +110,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.imageView.layer.borderWidth = 0 // Убираю обводку вокруг картинки
+            self.imageView.layer.borderWidth = CGFloat.zero // Убираю обводку вокруг картинки
             self.showNextQuestionOrResults()
             self.setAvailableButtons()
         }
