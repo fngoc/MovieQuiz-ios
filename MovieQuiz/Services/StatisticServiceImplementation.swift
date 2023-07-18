@@ -33,6 +33,7 @@ final class StatisticServiceImplementation: StatisticService {
         }
     }
     
+    // MARK: - Implementation of the protocol
     private(set) var totalAccuracy: Double {
         get {
             userDefaults.double(forKey: Keys.total.rawValue)
@@ -72,7 +73,7 @@ final class StatisticServiceImplementation: StatisticService {
         bestGame = GameRecord(correct: count, total: amount, date: Date())
     }
     
-    func updateGameStatisticService(correct: Int, amount: Int) {
+    func updateStatisticService(correct: Int, amount: Int) {
         gamesCount += 1
         totalCorrectAnswers += correct
         totalQuestions += amount

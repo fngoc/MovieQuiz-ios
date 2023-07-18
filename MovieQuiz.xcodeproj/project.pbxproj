@@ -28,6 +28,7 @@
 		C6E4439A2A5C64DC00800E89 /* QuestionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E443992A5C64DC00800E89 /* QuestionFactory.swift */; };
 		C6E4439C2A5C758B00800E89 /* QuestionFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E4439B2A5C758B00800E89 /* QuestionFactoryProtocol.swift */; };
 		C6E632B62A4C3CEA000991AC /* QuizStepViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E632B52A4C3CEA000991AC /* QuizStepViewModel.swift */; };
+		C6F0A4F72A6726DF0013E06C /* UpdateStatisticProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F0A4F62A6726DF0013E06C /* UpdateStatisticProtocol.swift */; };
 		C6FDA56A2A641CE200C2F041 /* StatisticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FDA5692A641CE200C2F041 /* StatisticService.swift */; };
 		C6FDA56C2A641F3300C2F041 /* StatisticServiceImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FDA56B2A641F3300C2F041 /* StatisticServiceImplementation.swift */; };
 /* End PBXBuildFile section */
@@ -56,6 +57,7 @@
 		C6E443992A5C64DC00800E89 /* QuestionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionFactory.swift; sourceTree = "<group>"; };
 		C6E4439B2A5C758B00800E89 /* QuestionFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionFactoryProtocol.swift; sourceTree = "<group>"; };
 		C6E632B52A4C3CEA000991AC /* QuizStepViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizStepViewModel.swift; sourceTree = "<group>"; };
+		C6F0A4F62A6726DF0013E06C /* UpdateStatisticProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStatisticProtocol.swift; sourceTree = "<group>"; };
 		C6FDA5692A641CE200C2F041 /* StatisticService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticService.swift; sourceTree = "<group>"; };
 		C6FDA56B2A641F3300C2F041 /* StatisticServiceImplementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticServiceImplementation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -154,16 +156,33 @@
 		C6E443982A5C647600800E89 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				C6F0A4F82A6727A10013E06C /* Protocols */,
 				C6E443992A5C64DC00800E89 /* QuestionFactory.swift */,
-				C6E4439B2A5C758B00800E89 /* QuestionFactoryProtocol.swift */,
-				C6DBDF8C2A5E9A9E002BC07D /* QuestionFactoryDelegate.swift */,
 				C6DBDF902A5EBAA5002BC07D /* AlertPresenter.swift */,
-				C6DBDF942A5ED1EE002BC07D /* AlertPresenterProtocol.swift */,
-				C6DBDF922A5ED1CD002BC07D /* AlertPresenterDelegate.swift */,
-				C6FDA5692A641CE200C2F041 /* StatisticService.swift */,
 				C6FDA56B2A641F3300C2F041 /* StatisticServiceImplementation.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		C6F0A4F82A6727A10013E06C /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				C6F0A4F92A6728070013E06C /* Delegates */,
+				C6E4439B2A5C758B00800E89 /* QuestionFactoryProtocol.swift */,
+				C6DBDF942A5ED1EE002BC07D /* AlertPresenterProtocol.swift */,
+				C6FDA5692A641CE200C2F041 /* StatisticService.swift */,
+				C6F0A4F62A6726DF0013E06C /* UpdateStatisticProtocol.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		C6F0A4F92A6728070013E06C /* Delegates */ = {
+			isa = PBXGroup;
+			children = (
+				C6DBDF8C2A5E9A9E002BC07D /* QuestionFactoryDelegate.swift */,
+				C6DBDF922A5ED1CD002BC07D /* AlertPresenterDelegate.swift */,
+			);
+			path = Delegates;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -241,6 +260,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD5EE5DE284D7887003966EF /* UIColor+Extensions.swift in Sources */,
+				C6F0A4F72A6726DF0013E06C /* UpdateStatisticProtocol.swift in Sources */,
 				C6DBDF912A5EBAA5002BC07D /* AlertPresenter.swift in Sources */,
 				C6DBDF8F2A5EBA24002BC07D /* AlertModel.swift in Sources */,
 				AD7AFA552836189F00399704 /* Array+Extensions.swift in Sources */,

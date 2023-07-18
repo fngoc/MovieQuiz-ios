@@ -50,7 +50,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     // MARK: - AlertPresenterDelegate
     func showResult() {
-        statisticService?.updateGameStatisticService(correct: correctAnswer, amount: questionAmount)
+        statisticService?.updateStatisticService(correct: correctAnswer, amount: questionAmount)
         let gameRecord = GameRecord(correct: correctAnswer, total: questionAmount, date: Date())
         
         if let bestGame = statisticService?.bestGame,
