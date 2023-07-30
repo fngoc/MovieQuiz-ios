@@ -47,9 +47,20 @@ final class QuestionFactory: QuestionFactoryProtocol {
                 print("Failed to load image")
             }
             
+            let text: String
+            let correctAnswer: Bool
             let rating = Double(movie.rating) ?? 0
-            let text = "Рейтинг фильма больше 7?"
-            let correctAnswer = rating > 7
+            
+            let ratingQuestion = Double(arc4random_uniform(10))
+            let moreOrLessFlag = Bool.random()
+            
+            if moreOrLessFlag {
+                text = "Рейтинг фильма больше \(String(format: "%.0f", ratingQuestion))?"
+                correctAnswer = rating > ratingQuestion
+            } else {
+                text = "Рейтинг фильма меньше \(String(format: "%.0f", ratingQuestion))?"
+                correctAnswer = rating < ratingQuestion
+            }
             
             let question = QuizQuestion(image: imageData,
                                         text: text,
