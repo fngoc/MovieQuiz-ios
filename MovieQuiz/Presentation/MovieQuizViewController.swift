@@ -9,13 +9,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     @IBOutlet private weak var yesButtonView: UIButton!
     @IBOutlet private weak var noButtonView: UIButton!
     
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
+    
     private var currentQuestionIndex: Int = 0
     private var correctAnswer: Int = 0
     
     private let questionAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenterProtocol?
-    private var statisticService: StatisticService?
+    private var statisticService: StatisticServiceProtocol?
     
     private var currentQuestion: QuizQuestion?
     
@@ -23,14 +25,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        questionFactory = QuestionFactory(delegate: self)
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         alertPresenter = AlertPresenter(delegate: self)
         statisticService = StatisticServiceImplementation()
 
         imageView.layer.masksToBounds = true // Даём разрешение на рисование рамки
         imageView.layer.cornerRadius = 20.0
         
-        questionFactory?.requestNextQuestion()
+        showLoadingIndicator()
+        questionFactory?.loadData()
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -45,7 +48,19 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
+        self.imageView.layer.borderWidth = CGFloat.zero // Убираю обводку вокруг картинки
         show(quiz: viewModel)
+    }
+    
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        setAvailableButtons()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        setUnavailableButtons()
+        showNetworkError(message: error.localizedDescription)
     }
     
     // MARK: - AlertPresenterDelegate
@@ -91,9 +106,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let viewModel: QuizStepViewModel = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionAmount)")
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionAmount)"
+        )
         return viewModel
     }
     
@@ -110,7 +126,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.imageView.layer.borderWidth = CGFloat.zero // Убираю обводку вокруг картинки
             self.showNextQuestionOrResults()
             self.setAvailableButtons()
         }
@@ -123,6 +138,33 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             currentQuestionIndex += 1
             questionFactory?.requestNextQuestion()
         }
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let alertModel: AlertModel = AlertModel(
+            text: "Ошибка",
+            message: "Ошибка загрузки фильмов",
+            buttonText: "Попробовать ещё раз",
+            completion: { [weak self] in
+                guard let self = self else { return }
+                
+                self.currentQuestionIndex = 0
+                self.correctAnswer = 0
+                self.questionFactory?.loadData()
+            })
+        alertPresenter?.showAlert(model: alertModel)
+    }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
     }
     
     // Делаю кнопки не доступными, что бы избежать во время быстрого нажатия на кнопки быстрой смены вопросов
