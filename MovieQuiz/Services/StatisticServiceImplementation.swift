@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class StatisticServiceImplementation: StatisticServiceProtocol {
+final class StatisticServiceImplementation {
     
     private enum Keys: String {
         case correct, total, bestGame, gamesCount, totalAnswers
@@ -32,6 +32,9 @@ final class StatisticServiceImplementation: StatisticServiceProtocol {
             userDefaults.set(newValue, forKey: Keys.totalAnswers.rawValue)
         }
     }
+}
+
+extension StatisticServiceImplementation: StatisticServiceProtocol {
     
     // MARK: - Implementation of the protocol
     private(set) var totalAccuracy: Double {

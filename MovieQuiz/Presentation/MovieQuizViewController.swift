@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
+final class MovieQuizViewController: UIViewController {
     
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
@@ -25,7 +25,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(networkClient: NetworkClient()), delegate: self)
         alertPresenter = AlertPresenter(delegate: self)
         statisticService = StatisticServiceImplementation()
 
@@ -34,57 +34,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         showLoadingIndicator()
         questionFactory?.loadData()
-    }
-    
-    // MARK: - QuestionFactoryDelegate
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        
-        currentQuestion = question;
-        let viewModel = convert(model: question)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
-        self.imageView.layer.borderWidth = CGFloat.zero // Убираю обводку вокруг картинки
-        show(quiz: viewModel)
-    }
-    
-    func didLoadDataFromServer() {
-        hideLoadingIndicator()
-        setAvailableButtons()
-        questionFactory?.requestNextQuestion()
-    }
-    
-    func didFailToLoadData(with error: Error) {
-        setUnavailableButtons()
-        showNetworkError(message: error.localizedDescription)
-    }
-    
-    // MARK: - AlertPresenterDelegate
-    func showResult() {
-        statisticService?.updateStatisticService(correct: correctAnswer, amount: questionAmount)
-        let gameRecord = GameRecord(correct: correctAnswer, total: questionAmount, date: Date())
-        
-        if let bestGame = statisticService?.bestGame,
-            gameRecord > bestGame {
-            statisticService?.store(correct: correctAnswer, total: questionAmount)
-        }
-        
-        let alertModel = AlertModel(
-            text: "Этот раунд окончен",
-            message: makeMessage(),
-            buttonText: "Сыграть еще раз",
-            completion: { [weak self] in
-                guard let self = self else { return }
-                
-                self.currentQuestionIndex = 0
-                self.correctAnswer = 0
-                self.questionFactory?.requestNextQuestion()
-            })
-        alertPresenter?.showAlert(model: alertModel)
     }
     
     // MARK: - Private functions
@@ -188,5 +137,62 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     @IBAction private func yesButtonAction(_ sender: UIButton) {
         setUnavailableButtons()
         showAnswerResult(isCorrect: self.currentQuestion?.correctAnswer == true)
+    }
+}
+
+extension MovieQuizViewController: QuestionFactoryDelegate {
+    
+    // MARK: - QuestionFactoryDelegate
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        
+        currentQuestion = question;
+        let viewModel = convert(model: question)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
+        }
+        self.imageView.layer.borderWidth = CGFloat.zero // Убираю обводку вокруг картинки
+        show(quiz: viewModel)
+    }
+    
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        setAvailableButtons()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        setUnavailableButtons()
+        showNetworkError(message: error.localizedDescription)
+    }
+}
+
+extension MovieQuizViewController: AlertPresenterDelegate {
+    
+    // MARK: - AlertPresenterDelegate
+    func showResult() {
+        statisticService?.updateStatisticService(correct: correctAnswer, amount: questionAmount)
+        let gameRecord = GameRecord(correct: correctAnswer, total: questionAmount, date: Date())
+        
+        if let bestGame = statisticService?.bestGame,
+            gameRecord > bestGame {
+            statisticService?.store(correct: correctAnswer, total: questionAmount)
+        }
+        
+        let alertModel = AlertModel(
+            text: "Этот раунд окончен",
+            message: makeMessage(),
+            buttonText: "Сыграть еще раз",
+            completion: { [weak self] in
+                guard let self = self else { return }
+                
+                self.currentQuestionIndex = 0
+                self.correctAnswer = 0
+                self.questionFactory?.requestNextQuestion()
+            })
+        alertPresenter?.showAlert(model: alertModel)
     }
 }

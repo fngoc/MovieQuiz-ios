@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class QuestionFactory: QuestionFactoryProtocol {
+final class QuestionFactory {
     
     private weak var delegate: QuestionFactoryDelegate?
     private let moviesLoader: MoviesLoading
@@ -31,6 +31,9 @@ final class QuestionFactory: QuestionFactoryProtocol {
         self.delegate = delegate
         self.moviesLoader = moviesLoader
     }
+}
+
+extension QuestionFactory: QuestionFactoryProtocol {
     
     func requestNextQuestion() {
         DispatchQueue.global().async { [weak self] in
@@ -87,4 +90,5 @@ final class QuestionFactory: QuestionFactoryProtocol {
             }
         }
     }
+    
 }

@@ -7,13 +7,16 @@
 
 import UIKit
 
-final class AlertPresenter: AlertPresenterProtocol {
+final class AlertPresenter {
     
     private weak var delegate: AlertPresenterDelegate?
     
     init(delegate: AlertPresenterDelegate) {
         self.delegate = delegate
     }
+}
+
+extension AlertPresenter: AlertPresenterProtocol {
     
     func showAlert(model: AlertModel) {
         let alert = UIAlertController(
