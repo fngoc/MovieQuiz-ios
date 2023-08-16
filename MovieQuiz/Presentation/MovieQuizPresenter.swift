@@ -76,19 +76,19 @@ final class MovieQuizPresenter {
         }
     }
     
-    // MARK: - Private functions
-    private func didAnswer(isYes: Bool) {
-        controller?.setUnavailableButtons()
-        proceedWithAnswer(isCorrect: currentQuestion?.correctAnswer == isYes)
-    }
-    
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
+    func convert(model: QuizQuestion) -> QuizStepViewModel {
         let viewModel: QuizStepViewModel = QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionAmount)"
         )
         return viewModel
+    }
+    
+    // MARK: - Private functions
+    private func didAnswer(isYes: Bool) {
+        controller?.setUnavailableButtons()
+        proceedWithAnswer(isCorrect: currentQuestion?.correctAnswer == isYes)
     }
     
     private func proceedToNextQuestionOrResults() {
