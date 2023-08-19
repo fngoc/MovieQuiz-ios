@@ -10,16 +10,17 @@ import Foundation
 final class QuestionFactory {
     
     private weak var delegate: QuestionFactoryDelegate?
-    private let moviesLoader: MoviesLoading
+    private let moviesLoader: MoviesLoadingProtocol
     
     private var movies: [MostPopularMovie] = []
     
-    init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate) {
+    init(moviesLoader: MoviesLoadingProtocol, delegate: QuestionFactoryDelegate) {
         self.delegate = delegate
         self.moviesLoader = moviesLoader
     }
 }
 
+// MARK: - QuestionFactoryProtocol
 extension QuestionFactory: QuestionFactoryProtocol {
     
     func requestNextQuestion() {

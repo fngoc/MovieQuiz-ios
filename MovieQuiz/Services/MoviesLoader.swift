@@ -7,16 +7,11 @@
 
 import Foundation
 
-protocol MoviesLoading {
-    func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void)
-}
+struct MoviesLoader {
 
-struct MoviesLoader: MoviesLoading {
+    private let networkClient: NetworkRoutingProtocol
     
-    // MARK: - NetworkClient
-    private let networkClient: NetworkRouting
-    
-    init(networkClient: NetworkRouting = NetworkClient()) {
+    init(networkClient: NetworkRoutingProtocol = NetworkClient()) {
         self.networkClient = networkClient
     }
     
@@ -27,6 +22,10 @@ struct MoviesLoader: MoviesLoading {
         }
         return url
     }
+}
+
+// MARK: - MoviesLoadingProtocol
+extension MoviesLoader: MoviesLoadingProtocol {
     
     func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void) {
         networkClient.fetch(url: mostPopularMoviesUrl) {result in

@@ -8,6 +8,7 @@
 import Foundation
 
 struct AlertModel {
+    
     let text: String
     let message: String
     let buttonText: String

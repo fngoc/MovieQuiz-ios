@@ -7,15 +7,15 @@
 
 import Foundation
 
-protocol NetworkRouting {
-    func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void)
-}
-
-struct NetworkClient: NetworkRouting {
+struct NetworkClient {
 
     private enum NetworkError: Error {
         case codeError
     }
+}
+
+// MARK: - NetworkRoutingProtocol
+extension NetworkClient: NetworkRoutingProtocol {
     
     func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
         let request = URLRequest(url: url)

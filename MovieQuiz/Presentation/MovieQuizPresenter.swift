@@ -30,6 +30,56 @@ final class MovieQuizPresenter {
         self.controller?.showLoadingIndicator()
     }
     
+    // MARK: - Private functions
+    private func didAnswer(isYes: Bool) {
+        controller?.setUnavailableButtons()
+        proceedWithAnswer(isCorrect: currentQuestion?.correctAnswer == isYes)
+    }
+    
+    private func proceedToNextQuestionOrResults() {
+        if isLastQuestion() {
+            controller?.showResult()
+        } else {
+            switchToNextQuestion()
+            questionFactory?.requestNextQuestion()
+        }
+    }
+    
+    private func proceedWithAnswer(isCorrect: Bool) {
+        controller?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        didAnswer(isCorrectAnswer: isCorrect)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.proceedToNextQuestionOrResults()
+            self.controller?.setAvailableButtons()
+        }
+    }
+    
+    private func didAnswer(isCorrectAnswer: Bool) {
+        correctAnswer = isCorrectAnswer ? correctAnswer + 1 : correctAnswer
+    }
+    
+    private func resetQuestionIndex() {
+        currentQuestionIndex = 0
+    }
+    
+    private func resetCorrectAnswer() {
+        correctAnswer = 0
+    }
+    
+    private func switchToNextQuestion() {
+        currentQuestionIndex += 1
+    }
+    
+    private func isLastQuestion() -> Bool {
+        return currentQuestionIndex == questionAmount - 1
+    }
+}
+
+// MARK: - MovieQuizPresenterProtocol
+extension MovieQuizPresenter: MovieQuizPresenterProtocol {
+    
     func noButtonAction(_ sender: UIButton) {
         didAnswer(isYes: false)
     }
@@ -83,52 +133,6 @@ final class MovieQuizPresenter {
             questionNumber: "\(currentQuestionIndex + 1)/\(questionAmount)"
         )
         return viewModel
-    }
-    
-    // MARK: - Private functions
-    private func didAnswer(isYes: Bool) {
-        controller?.setUnavailableButtons()
-        proceedWithAnswer(isCorrect: currentQuestion?.correctAnswer == isYes)
-    }
-    
-    private func proceedToNextQuestionOrResults() {
-        if isLastQuestion() {
-            controller?.showResult()
-        } else {
-            switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-        }
-    }
-    
-    private func proceedWithAnswer(isCorrect: Bool) {
-        controller?.highlightImageBorder(isCorrectAnswer: isCorrect)
-        didAnswer(isCorrectAnswer: isCorrect)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.proceedToNextQuestionOrResults()
-            self.controller?.setAvailableButtons()
-        }
-    }
-    
-    private func didAnswer(isCorrectAnswer: Bool) {
-        correctAnswer = isCorrectAnswer ? correctAnswer + 1 : correctAnswer
-    }
-    
-    private func resetQuestionIndex() {
-        currentQuestionIndex = 0
-    }
-    
-    private func resetCorrectAnswer() {
-        correctAnswer = 0
-    }
-    
-    private func switchToNextQuestion() {
-        currentQuestionIndex += 1
-    }
-    
-    private func isLastQuestion() -> Bool {
-        return currentQuestionIndex == questionAmount - 1
     }
 }
 

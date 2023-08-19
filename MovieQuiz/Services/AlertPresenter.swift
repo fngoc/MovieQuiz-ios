@@ -16,6 +16,7 @@ final class AlertPresenter {
     }
 }
 
+// MARK: - AlertPresenterProtocol
 extension AlertPresenter: AlertPresenterProtocol {
     
     func showAlert(model: AlertModel) {

@@ -34,6 +34,7 @@ final class StatisticServiceImplementation {
     }
 }
 
+// MARK: - StatisticServiceProtocol
 extension StatisticServiceImplementation: StatisticServiceProtocol {
     
     // MARK: - Implementation of the protocol

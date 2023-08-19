@@ -25,22 +25,6 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.cornerRadius = 20.0
     }
     
-    func removeStrokeAroundImage() {
-        imageView.layer.borderWidth = CGFloat.zero
-    }
-    
-    // Делаю кнопки не доступными, что бы избежать во время быстрого нажатия на кнопки быстрой смены вопросов
-    func setUnavailableButtons() {
-        noButtonView.isUserInteractionEnabled = false
-        yesButtonView.isUserInteractionEnabled = false
-    }
-    
-    // Делаю кнопки доступными
-    func setAvailableButtons() {
-        noButtonView.isUserInteractionEnabled = true
-        yesButtonView.isUserInteractionEnabled = true
-    }
-    
     // MARK: - Actions
     @IBAction private func noButtonAction(_ sender: UIButton) {
         presenter?.noButtonAction(sender)
@@ -60,11 +44,11 @@ extension MovieQuizViewController: AlertPresenterDelegate {
         let alertModel = AlertModel(
             text: "Этот раунд окончен",
             message: presenter?.makeMessage() ?? "Ошибка формирования статистики",
-            buttonText: "Сыграть еще раз",
-            completion: { [weak self] in
-                guard let self = self else { return }
-                self.presenter?.restartGame()
-            })
+            buttonText: "Сыграть еще раз"
+        ) { [weak self] in
+            guard let self = self else { return }
+            self.presenter?.restartGame()
+        }
         alertPresenter?.showAlert(model: alertModel)
     }
 }
@@ -99,11 +83,27 @@ extension MovieQuizViewController: MovieQuizViewControllerProtocol {
         let alertModel: AlertModel = AlertModel(
             text: "Ошибка",
             message: "Ошибка загрузки фильмов",
-            buttonText: "Попробовать ещё раз",
-            completion: { [weak self] in
-                guard let self = self else { return }
-                self.presenter?.reloadGame()
-            })
+            buttonText: "Попробовать ещё раз"
+        ){ [weak self] in
+            guard let self = self else { return }
+            self.presenter?.reloadGame()
+        }
         alertPresenter?.showAlert(model: alertModel)
+    }
+    
+    func removeStrokeAroundImage() {
+        imageView.layer.borderWidth = CGFloat.zero
+    }
+    
+    // Делаю кнопки не доступными, что бы избежать во время быстрого нажатия на кнопки быстрой смены вопросов
+    func setUnavailableButtons() {
+        noButtonView.isUserInteractionEnabled = false
+        yesButtonView.isUserInteractionEnabled = false
+    }
+    
+    // Делаю кнопки доступными
+    func setAvailableButtons() {
+        noButtonView.isUserInteractionEnabled = true
+        yesButtonView.isUserInteractionEnabled = true
     }
 }
